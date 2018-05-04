@@ -38,4 +38,14 @@ var app = {
       }
     });
   },
+  clearMessages: function() {
+    $('#chats').empty();
+  },
+  renderMessage: function(message) {
+    $('#chats').append('<div>' + message + '</div>');
+  },
+  renderRoom: function(room) {
+    // <option value="volvo">Volvo</option>
+    $('#roomSelect').append('<option value=\"' + room + '\">' + room + '</option>');
+  }
 };
