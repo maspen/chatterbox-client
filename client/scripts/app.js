@@ -2,7 +2,22 @@ var app = {
   init: function() {
     this.server = 'http://parse.sfm8.hackreactor.com/';
     this.friends = {};
+//<input type="text" name="message" id="message"/>
+//<input type="submit" name="submit" class="submit"/>
+    // this.submitTrigger = $('#send .submit').on('submit', function() {
+    //   app.handleSubmit($('#message').val());
+// debugger;
+// this.submitTrigger = 
+    // $('#send .submit').on('submit', function() {
+    //   app.handleSubmit($('#send #message').val());
+    // });
+    this.button = $('#send .submit').submit(function(event) {
+      app.handleSubmit($('#send #message').val());
+    });
   },
+  // $('#send .submit').submit(function() {
+  //     app.handleSubmit($('#send #message').val());
+  //   }),
   send: function(message) {
     $.ajax({
       // This is the url you should use to communicate with the parse API server.
@@ -43,38 +58,25 @@ var app = {
     $('#chats').empty();
   },
   renderMessage: function(message) {
-          // username: 'Mel Brooks',
-          // text: 'I didn\'t get a harumph outa that guy.!',
-          // roomname: 'lobby'
-    // var messageTag = $('<div class=\"' + message.username + '\">' + message.text + '</div>');
-    // messageTag.on( "click", this.handleUsernameClick );
-// debugger;    
-    // $('#chats').append($.parseHTML('<div class=\"' + message.username + '\">' + message.text + '</div>'))
-    //   .on( "click", this.handleUsernameClick );
-
-    // $('#chats').append(messageTag);
-    // var messageTag = '<div class=\"' + message.username + '\">' + message.text + '</div>';
-
-    // $('#chats').append(messageTag);
-    // $('.' + message.username).on('click', app.handleUsernameClick);
-// debugger;
     var msgTagDiv = $('<div>');
-    msgTagDiv.addClass(message.username);
+    msgTagDiv.addClass('username');
+    msgTagDiv.attr('data-username', `${message.username}`);
     msgTagDiv.html(message.text);
-    msgTagDiv.click(function(){
-      this.handleUsernameClick();
+
+    msgTagDiv.on('click', function() {
+      app.handleUsernameClick($(this));
     });
     
     $('#chats').append(msgTagDiv);
-    
   },
   renderRoom: function(room) {
     $('#roomSelect').append('<option value=\"' + room + '\">' + room + '</option>');
   },
-  handleUsernameClick: function() {
-    
+  handleUsernameClick: function(domObject) {
+    var userName = domObject.attr('data-username');
+    this.friends[userName] = userName;
   },
-  handleSubmit: function() {
-
+  handleSubmit: function(message) {
+console.log(message);    
   }
 };
