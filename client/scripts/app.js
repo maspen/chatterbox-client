@@ -2,13 +2,13 @@ var app = {
   init: function() {
     this.server = 'http://parse.sfm8.hackreactor.com';
     this.friends = {};
-    this.rooms = {}; // { roomName1:[], roomName2: []} 
+    this.rooms = { 'lobby':[] }; // { roomName1:[], roomName2: []} 
     this.button = $('#send .submit').submit(function(event) {
       app.handleSubmit($('#send #message').val());
     });
     // need to toggle spinner 'off'
     $(".spinner").toggle();
-    this.fetchDataArray = this.fetch();
+    this.fetch();
   },
   // $('#send .submit').submit(function() {
   //     app.handleSubmit($('#send #message').val());
@@ -16,12 +16,12 @@ var app = {
   send: function(message) {
     $.ajax({
       // This is the url you should use to communicate with the parse API server.
-      url: this.server,
+      url: this.server + '/chatterbox/classes/messages',
       type: 'POST',
       data: JSON.stringify(message),
       contentType: 'application/json',
       success: function (message) {
-        // on success, need to add to div #chats
+        // on success, need to add to div #chats AND rooms
         console.log('chatterbox: Message sent');
       },
       error: function (message) {
@@ -39,36 +39,13 @@ var app = {
       type: 'GET',
       contentType: 'application/json',
       success: function (data) {
-/*
-  array with elements like:
 
-      Object
-      createdAt
-      :
-      "2017-12-08T20:55:12.526Z"
-      objectId
-      :
-      "hEG6XDGsEE"
-      text
-      :
-      "cat was here"
-      updatedAt
-      :
-      "2017-12-08T20:55:12.526Z"
-      username
-      :
-      "cat"
----------------
-      createdAt: "2017-12-08T20:45:55.809Z"
-      objectId: "dK4QKTX9zi"
-      roomname: "peru"
-      text:"yeyeyeyyeyeye012345678910111213"
-      updatedAt:"2017-12-08T20:45:55.809Z"
-      username:"cat the rat"
-
-*/
         console.log('chatterbox: Message sent received from GET', data);
 console.log('chatterbox: Message sent received from GET', data.results);
+
+        app.parseFetchedMessageArray(data.results);
+        app.populatePage('lobby');
+
         return data.results;
       },
       error: function () {
@@ -78,13 +55,20 @@ console.log('chatterbox: Message sent received from GET', data.results);
       }
     });
   },
-  parseFetchedMessagArray: function(array) {
+  parseFetchedMessageArray: function(array) {
+    // clear rooms object
+    app.rooms = { 'lobby':[] };
+
     array.forEach(function(message){
-      var messageDiv = constructMessageDivForMessage(message);
+      var messageDiv = app.constructMessageDivForMessage(message);
+
       if(message.roomname) {
-        rooms.roomname.push(div);
+        if(!app.rooms.hasOwnProperty(message.roomname)) {
+          app.rooms[message.roomname] = [];
+        }
+        app.rooms[message.roomname].push(messageDiv);
       } else {
-        rooms['lobby'].push(div);
+        app.rooms['lobby'].push(messageDiv);
       }
     });   
   },
@@ -92,19 +76,31 @@ console.log('chatterbox: Message sent received from GET', data.results);
     $('#chats').empty();
   },
   constructMessageDivForMessage: function(message) {
-    var msgTagDiv = $('<div>');
-    msgTagDiv.addClass('username');
-    msgTagDiv.attr('data-username', `${message.username}`);
-    if(message.roomname) {
-      msgTagDiv.attr('data-roomname', `${message.roomname}`);
-    } else {
-      msgTagDiv.attr('data-roomname', 'lobby');
-    }
-    msgTagDiv.html(message.text);
+    // var msgTagDiv = $('<div>');
+    // msgTagDiv.addClass('username');
+    // msgTagDiv.attr('data-username', `${message.username}`);
+    // if(message.roomname) {
+    //   msgTagDiv.attr('data-roomname', `${message.roomname}`);
+    // } else {
+    //   msgTagDiv.attr('data-roomname', 'lobby');
+    // }
+    // msgTagDiv.html('<strong>'+ message.username + '</strong></br>'+ message.text);
 
-    msgTagDiv.on('click', function() {
+    // msgTagDiv.on('click', function() {
+    //   app.handleUsernameClick($(this));
+    // });
+    var $messageContainer = $('<div>').addClass('message');
+    var $usernameTag = $('<div>').addClass('username').text(message.username);
+    var $messageTag = $('<div>').addClass('message-text').text(message.text);
+    $messageContainer.append($usernameTag);
+    $messageContainer.append($messageTag);
+    // $messageContainer.attr('data-room', `${message.roomname}`)
+
+    $messageContainer.on('click', function() {
       app.handleUsernameClick($(this));
     });
+
+    return $messageContainer;
   },
   renderMessage: function(messageDiv) {
     $('#chats').append(messageDiv);
@@ -130,5 +126,16 @@ console.log('chatterbox: Message sent received from GET', data.results);
     // 3. toggle spinner 'off'
     $('.spinner').toggle();
     console.log(message);    
+  },
+  populatePage(roomName) {
+    // populate Room selections
+console.log(Object.keys(app.rooms));
+    for(var key in app.rooms) {
+      this.renderRoom(key);
+    }
+
+    app.rooms['lobby'].forEach(function(tag){
+      app.renderMessage(tag);
+    })
   }
 };

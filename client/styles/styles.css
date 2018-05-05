@@ -80,9 +80,9 @@ form input[type=text] {
     padding: 5px;
 }
 
-/*form input .message {
-    border-style: solid;
-}*/
+#chats .message .username {
+    font-weight: bold;
+}
 
 .chat {
     padding: 5px;
