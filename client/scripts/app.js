@@ -1,22 +1,14 @@
 var app = {
   init: function() {
-    console.log('init() called');
-    this.server = 'http://parse.sfm8.hackreactor.com/';
+    this.server = 'http://parse.sfm8.hackreactor.com';
     this.friends = {};
-//<input type="text" name="message" id="message"/>
-//<input type="submit" name="submit" class="submit"/>
-    // this.submitTrigger = $('#send .submit').on('submit', function() {
-    //   app.handleSubmit($('#message').val());
-// debugger;
-// this.submitTrigger = 
-    // $('#send .submit').on('submit', function() {
-    //   app.handleSubmit($('#send #message').val());
-    // });
+    this.rooms = {}; // { roomName1:[], roomName2: []} 
     this.button = $('#send .submit').submit(function(event) {
       app.handleSubmit($('#send #message').val());
     });
     // need to toggle spinner 'off'
-    $( "#spinner" ).toggle();
+    $(".spinner").toggle();
+    this.fetchDataArray = this.fetch();
   },
   // $('#send .submit').submit(function() {
   //     app.handleSubmit($('#send #message').val());
@@ -41,16 +33,43 @@ var app = {
   // ??? needs to be called when the page loads & populates the 'rooms' pull down
   fetch: function() {
     $.ajax({
-      url: this.server,
+      // http://parse.CAMPUS.hackreactor.com/chatterbox/classes/messages
+      // sfm8
+      url: this.server + '/chatterbox/classes/messages',
       type: 'GET',
-      //data: JSON.stringify(message),
       contentType: 'application/json',
-      data: {
-        format: 'json'
-      },
       success: function (data) {
+/*
+  array with elements like:
+
+      Object
+      createdAt
+      :
+      "2017-12-08T20:55:12.526Z"
+      objectId
+      :
+      "hEG6XDGsEE"
+      text
+      :
+      "cat was here"
+      updatedAt
+      :
+      "2017-12-08T20:55:12.526Z"
+      username
+      :
+      "cat"
+---------------
+      createdAt: "2017-12-08T20:45:55.809Z"
+      objectId: "dK4QKTX9zi"
+      roomname: "peru"
+      text:"yeyeyeyyeyeye012345678910111213"
+      updatedAt:"2017-12-08T20:45:55.809Z"
+      username:"cat the rat"
+
+*/
         console.log('chatterbox: Message sent received from GET', data);
-        return data;
+console.log('chatterbox: Message sent received from GET', data.results);
+        return data.results;
       },
       error: function () {
         // See: https://developer.mozilla.org/en-US/docs/Web/API/console.error
@@ -59,20 +78,38 @@ var app = {
       }
     });
   },
+  parseFetchedMessagArray: function(array) {
+    array.forEach(function(message){
+      var messageDiv = constructMessageDivForMessage(message);
+      if(message.roomname) {
+        rooms.roomname.push(div);
+      } else {
+        rooms['lobby'].push(div);
+      }
+    });   
+  },
   clearMessages: function() {
     $('#chats').empty();
   },
-  renderMessage: function(message) {
+  constructMessageDivForMessage: function(message) {
     var msgTagDiv = $('<div>');
     msgTagDiv.addClass('username');
     msgTagDiv.attr('data-username', `${message.username}`);
+    if(message.roomname) {
+      msgTagDiv.attr('data-roomname', `${message.roomname}`);
+    } else {
+      msgTagDiv.attr('data-roomname', 'lobby');
+    }
     msgTagDiv.html(message.text);
 
     msgTagDiv.on('click', function() {
       app.handleUsernameClick($(this));
     });
-    
-    $('#chats').append(msgTagDiv);
+  },
+  renderMessage: function(messageDiv) {
+    $('#chats').append(messageDiv);
+
+  // Check the roomname and see if it's a property in this.rooms
   },
   renderRoom: function(room) {
     $('#roomSelect').append('<option value=\"' + room + '\">' + room + '</option>');

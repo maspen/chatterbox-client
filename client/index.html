@@ -23,12 +23,6 @@
     <script src="scripts/app.js"></script>
   </head>
   <body>
-<!--     <div id="main">
-      <h1>chatterbox</h1>
-      Your HTML goes here!
-    </div>
-    <div id="chats"></div>
-  </body> -->
   <div id="main">
     <h1>chatterbox</h1>
     <div class="spinner"><img src="images/spiffygif_46x46.gif"></div>
@@ -43,8 +37,5 @@
     <div id="chats"></div>
   </div>
   </body>
-  <!-- need to call app.init(); ... then 'toggle' should be inside it and below line is redundant -->
-
-  <!-- need to toggle spinner 'off' -->
-  <script>$('.spinner').toggle()</script>
+  <script>app.init()</script>
 </html>
