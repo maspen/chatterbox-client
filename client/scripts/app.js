@@ -1,5 +1,6 @@
 var app = {
   init: function() {
+    console.log('init() called');
     this.server = 'http://parse.sfm8.hackreactor.com/';
     this.friends = {};
 //<input type="text" name="message" id="message"/>
@@ -14,6 +15,8 @@ var app = {
     this.button = $('#send .submit').submit(function(event) {
       app.handleSubmit($('#send #message').val());
     });
+    // need to toggle spinner 'off'
+    $( "#spinner" ).toggle();
   },
   // $('#send .submit').submit(function() {
   //     app.handleSubmit($('#send #message').val());
@@ -73,10 +76,19 @@ var app = {
     $('#roomSelect').append('<option value=\"' + room + '\">' + room + '</option>');
   },
   handleUsernameClick: function(domObject) {
+    // what else should happen when an user is clicked?
     var userName = domObject.attr('data-username');
     this.friends[userName] = userName;
   },
   handleSubmit: function(message) {
-console.log(message);    
+    // 0. toggle class="spinner" to 'on' - when page loads
+    //    its toggled 'off'
+    $('.spinner').toggle();
+    // 1. need to contact the server and send the message
+    // 2. when response comes back as 'ok', add message text
+    //    and author to div id="chats"
+    // 3. toggle spinner 'off'
+    $('.spinner').toggle();
+    console.log(message);    
   }
 };
