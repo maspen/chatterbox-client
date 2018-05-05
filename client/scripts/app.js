@@ -3,8 +3,13 @@ var app = {
     this.server = 'http://parse.sfm8.hackreactor.com';
     this.friends = {};
     this.rooms = { 'lobby':[] }; // { roomName1:[], roomName2: []} 
-    this.button = $('#send .submit').submit(function(event) {
-      app.handleSubmit($('#send #message').val());
+    $('#send .submit').on('click', function(event) {
+      var newMessageObj = {};
+      newMessageObj.text = $('#inputMessage').val();
+      newMessageObj.username = window.location.search.replace(/[?]username=/, '');
+      newMessageObj.roomname = $('#roomSelect').attr('data-currentroom');
+      // Need to find a way to do it directly from option?
+      app.handleSubmit(newMessageObj);
     });
     // need to toggle spinner 'off'
     $(".spinner").toggle();
@@ -37,11 +42,11 @@ var app = {
       // sfm8
       url: this.server + '/chatterbox/classes/messages',
       type: 'GET',
+      data: {limit: 300, order: '-createdAt'},
       contentType: 'application/json',
       success: function (data) {
-
         console.log('chatterbox: Message sent received from GET', data);
-console.log('chatterbox: Message sent received from GET', data.results);
+        console.log('chatterbox: Message sent received from GET', data.results);
 
         app.parseFetchedMessageArray(data.results);
         app.populatePage('lobby');
@@ -115,26 +120,24 @@ console.log('chatterbox: Message sent received from GET', data.results);
     var userName = domObject.attr('data-username');
     this.friends[userName] = userName;
   },
-  handleSubmit: function(message) {
+  handleSubmit: function(inputMessage) {
     // 0. toggle class="spinner" to 'on' - when page loads
     //    its toggled 'off'
     $('.spinner').toggle();
     // 1. need to contact the server and send the message
-    //    
+    this.send(inputMessage);
     // 2. when response comes back as 'ok', add message text
     //    and author to div id="chats"
     // 3. toggle spinner 'off'
-    $('.spinner').toggle();
-    console.log(message);    
+    $('.spinner').toggle();  
   },
-  populatePage(roomName) {
+  populatePage(roomName = 'lobby') {
     // populate Room selections
-console.log(Object.keys(app.rooms));
+    $('#roomSelect').attr('data-currentRoom', roomName);
     for(var key in app.rooms) {
       this.renderRoom(key);
     }
-
-    app.rooms['lobby'].forEach(function(tag){
+    app.rooms[roomName].forEach(function(tag){
       app.renderMessage(tag);
     })
   }
