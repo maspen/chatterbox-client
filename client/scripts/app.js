@@ -28,6 +28,8 @@ var app = {
       success: function (message) {
         // on success, need to add to div #chats AND rooms
         console.log('chatterbox: Message sent');
+        // call fetch sending in roomname
+        
       },
       error: function (message) {
         // See: https://developer.mozilla.org/en-US/docs/Web/API/console.error
@@ -36,7 +38,7 @@ var app = {
     });
   },
   // ??? needs to be called when the page loads & populates the 'rooms' pull down
-  fetch: function() {
+  fetch: function(roomname) {
     $.ajax({
       // http://parse.CAMPUS.hackreactor.com/chatterbox/classes/messages
       // sfm8
@@ -49,7 +51,7 @@ var app = {
         console.log('chatterbox: Message sent received from GET', data.results);
 
         app.parseFetchedMessageArray(data.results);
-        app.populatePage('lobby');
+        app.populatePage(roomname);
 
         return data.results;
       },
@@ -125,7 +127,7 @@ var app = {
     //    its toggled 'off'
     $('.spinner').toggle();
     // 1. need to contact the server and send the message
-    this.send(inputMessage);
+    app.send(inputMessage);
     // 2. when response comes back as 'ok', add message text
     //    and author to div id="chats"
     // 3. toggle spinner 'off'
