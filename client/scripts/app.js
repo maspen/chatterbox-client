@@ -29,6 +29,7 @@ var app = {
       data: JSON.stringify(message),
       contentType: 'application/json',
       success: function (message) {
+        // on success, need to add to div #chats
         console.log('chatterbox: Message sent');
       },
       error: function (message) {
@@ -37,6 +38,7 @@ var app = {
       }
     });
   },
+  // ??? needs to be called when the page loads & populates the 'rooms' pull down
   fetch: function() {
     $.ajax({
       url: this.server,
@@ -85,6 +87,7 @@ var app = {
     //    its toggled 'off'
     $('.spinner').toggle();
     // 1. need to contact the server and send the message
+    //    
     // 2. when response comes back as 'ok', add message text
     //    and author to div id="chats"
     // 3. toggle spinner 'off'
