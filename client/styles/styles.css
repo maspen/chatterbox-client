@@ -5,7 +5,7 @@ body {
     font-family: arial, sans-serif;
 }
 
-#main, #chats {
+/*#main, #chats {
     width: 500px;
     margin: auto;
     text-align: left;
@@ -13,6 +13,27 @@ body {
     padding: 50px 60px;
     border: solid #ddd;
     border-width: 0 1px 1px 1px;
+}*/
+
+#main {
+    width: 500px;
+    margin: auto;
+    text-align: left;
+    background: white;
+    padding: 50px 60px;
+    border: solid #ddd;
+    border-width: 0 1px 1px 1px;
+}
+
+#chats {
+    width: 380px;
+/*    margin: auto;
+    text-align: left;*/
+    background: #e6e6e6;
+/*    padding: 50px 60px;*/
+    padding: 20px 60px;
+    border: solid #ddd;
+    border-width: 1px 1px 1px 1px;
 }
 
 #main h1 {
@@ -58,6 +79,10 @@ form input[type=text] {
     font-size: 12px;
     padding: 5px;
 }
+
+/*form input .message {
+    border-style: solid;
+}*/
 
 .chat {
     padding: 5px;
