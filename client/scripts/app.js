@@ -20,7 +20,7 @@ var app = {
 
     $(document).on('change', '#roomSelect', function(event) {
       var theRoom = $(event.target).val();
-      console.log(event)
+      $('#roomSelect').attr('data-currentroom', theRoom)
       app.fetch( theRoom );
 
 //     // $('#roomSelect').change(function() {
@@ -55,7 +55,10 @@ console.log('888888888' + $('#roomSelect').val());
       success: function (data) {
         // on success, need to add to div #chats AND rooms
         console.log('chatterbox: Message sent' + data);
-        // refresh page
+        // toggel spinner
+        $('.spinner').toggle();
+        // refresh msg area
+        app.fetch(message.roomname);
         
       },
       error: function (message) {
@@ -109,7 +112,7 @@ console.log('888888888' + $('#roomSelect').val());
   },
   clearMessages: function() {
     // clear chat messages
-    // $('#chats').empty();
+    $('#chats').empty();
     // clear the room selector
     $('#roomSelect').empty();
   },
@@ -156,19 +159,22 @@ console.log('handle submit ....');
     app.send(inputMessage);
     // 2. when response comes back as 'ok', add message text
     //    and author to div id="chats"
-    app.fetch(currentRoom);
+    // app.fetch(currentRoom);
     // 3. toggle spinner 'off'
     $('.spinner').toggle();  
   },
   populatePage(roomName = 'lobby') {
+    app.clearMessages();
     // populate Room selections
-    $('#roomSelect').attr('data-currentRoom', roomName);
+    // $('#roomSelect').attr('data-currentRoom', roomName);
     for(var key in app.rooms) {
       this.renderRoom(key);
     }
-    app.rooms[roomName].forEach(function(tag) {
-      app.renderMessage(tag);
+
+    app.rooms[roomName].forEach(function(message) {
+      app.renderMessage(message);
     });
+    // TOGGLE OFF spinner
     $( '.spinner').toggle();
   }
 };
