@@ -80,6 +80,10 @@ form input[type=text] {
     padding: 5px;
 }
 
+select {
+    max-width: 50%;
+}
+
 #chats .message .username {
     font-weight: bold;
 }

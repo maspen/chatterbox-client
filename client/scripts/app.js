@@ -4,6 +4,8 @@ var app = {
     this.friends = {};
     this.rooms = { 'lobby':[] }; // { roomName1:[], roomName2: []} 
     $('#send .submit').on('click', function(event) {
+      event.preventDefault();
+
       var newMessageObj = {};
       newMessageObj.text = $('#inputMessage').val();
       newMessageObj.username = window.location.search.replace(/[?]username=/, '');
@@ -11,20 +13,38 @@ var app = {
       // Need to find a way to do it directly from option?
       app.handleSubmit(newMessageObj);
     });
-    // $('#roomSelect').on('change', function(event) {
-    $('#roomSelect').change(function() {
-      $(".spinner").toggle();
-      app.clearMessages();
-      app.fetch($(this).val());
+
+    $(document).on('click', '.username', function(event){
+    console.log(event.target)   
+   });
+
+    $(document).on('change', '#roomSelect', function(event) {
+      var theRoom = $(event.target).val();
+      console.log(event)
+      app.fetch( theRoom );
+
+//     // $('#roomSelect').change(function() {
+//       // $(".spinner").toggle();
+//       app.clearMessages();
+// //console.log(document.getElementById('#roomSelect').value());
+// // console.log($('#roomSelect').attr('data-currentroom'));
+
+// // console.log('***********' + $( "#roomSelect option:selected" ).val());
+// // console.log('888888888' + JSON.stringify($(this).val()));
+// // console.log('888888888' + JSON.stringify($(event.target).val()));
+// // console.log('888888888' + JSON.stringify($(event.target))); // {"0":{},"context":{},"length":1}
+// // console.log('888888888' + $('#roomSelect').val()); // null
+// // console.log('888888888' + $('#roomSelect')); // Object
+// // console.log('888888888' + JSON.stringify($('#roomSelect')));
+    });
+
+    $(document).on('change', '#roomSelect', function() {
+console.log('888888888' + $('#roomSelect').val());
     });
     // // need to toggle spinner 'off'
     this.fetch();
   },
-  // $('#send .submit').submit(function() {
-  //     app.handleSubmit($('#send #message').val());
-  //   }),
   send: function(message) {
-    console.log('send is running');
     $.ajax({
       // This is the url you should use to communicate with the parse API server.
       url: this.server + '/chatterbox/classes/messages',
@@ -35,7 +55,7 @@ var app = {
       success: function (data) {
         // on success, need to add to div #chats AND rooms
         console.log('chatterbox: Message sent' + data);
-        // call fetch sending in roomname
+        // refresh page
         
       },
       error: function (message) {
@@ -119,7 +139,7 @@ var app = {
   // Check the roomname and see if it's a property in this.rooms
   },
   renderRoom: function(room) {
-    $('#roomSelect').append('<option value=\"' + room + '\">' + room + '</option>');
+    $('#roomSelect').append('<option class="selectedRoom" value=\"' + room + '\">' + room + '</option>');
   },
   handleUsernameClick: function(domObject) {
     // what else should happen when an user is clicked?
@@ -144,10 +164,8 @@ console.log('handle submit ....');
     // populate Room selections
     $('#roomSelect').attr('data-currentRoom', roomName);
     for(var key in app.rooms) {
-      console.log(key);
       this.renderRoom(key);
     }
-console.log('roomName' + roomName);
     app.rooms[roomName].forEach(function(tag) {
       app.renderMessage(tag);
     });
