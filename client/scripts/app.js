@@ -11,23 +11,30 @@ var app = {
       // Need to find a way to do it directly from option?
       app.handleSubmit(newMessageObj);
     });
-    // need to toggle spinner 'off'
-    $(".spinner").toggle();
+    // $('#roomSelect').on('change', function(event) {
+    $('#roomSelect').change(function() {
+      $(".spinner").toggle();
+      app.clearMessages();
+      app.fetch($(this).val());
+    });
+    // // need to toggle spinner 'off'
     this.fetch();
   },
   // $('#send .submit').submit(function() {
   //     app.handleSubmit($('#send #message').val());
   //   }),
   send: function(message) {
+    console.log('send is running');
     $.ajax({
       // This is the url you should use to communicate with the parse API server.
       url: this.server + '/chatterbox/classes/messages',
       type: 'POST',
       data: JSON.stringify(message),
+      // data: { posted_data: JSON.stringify(message) },
       contentType: 'application/json',
-      success: function (message) {
+      success: function (data) {
         // on success, need to add to div #chats AND rooms
-        console.log('chatterbox: Message sent');
+        console.log('chatterbox: Message sent' + data);
         // call fetch sending in roomname
         
       },
@@ -56,7 +63,7 @@ var app = {
         return data.results;
       },
       error: function () {
-        // See: https://developer.mozilla.org/en-US/docs/Web/API/console.error
+        // // See: https://developer.mozilla.org/en-US/docs/Web/API/console.error
         console.error('chatterbox: Failed to send GET');
         return null;
       }
@@ -64,13 +71,14 @@ var app = {
   },
   parseFetchedMessageArray: function(array) {
     // clear rooms object
-    app.rooms = { 'lobby':[] };
+    app.rooms = { 'lobby': [] };
 
-    array.forEach(function(message){
+    array.forEach(function(message) {
       var messageDiv = app.constructMessageDivForMessage(message);
 
-      if(message.roomname) {
-        if(!app.rooms.hasOwnProperty(message.roomname)) {
+      if (message.roomname && message.roomname !== null && message.roomname !== 'undefined') {
+        message.roomname = message.roomname.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        if (!app.rooms.hasOwnProperty(message.roomname)) {
           app.rooms[message.roomname] = [];
         }
         app.rooms[message.roomname].push(messageDiv);
@@ -80,34 +88,30 @@ var app = {
     });   
   },
   clearMessages: function() {
-    $('#chats').empty();
+    // clear chat messages
+    // $('#chats').empty();
+    // clear the room selector
+    $('#roomSelect').empty();
   },
   constructMessageDivForMessage: function(message) {
-    // var msgTagDiv = $('<div>');
-    // msgTagDiv.addClass('username');
-    // msgTagDiv.attr('data-username', `${message.username}`);
-    // if(message.roomname) {
-    //   msgTagDiv.attr('data-roomname', `${message.roomname}`);
-    // } else {
-    //   msgTagDiv.attr('data-roomname', 'lobby');
-    // }
-    // msgTagDiv.html('<strong>'+ message.username + '</strong></br>'+ message.text);
+    if(message.text) {
+      var $messageContainer = $('<div>').addClass('message');
+      var $usernameTag = $('<a href="#">').addClass('username').text(message.username);
+      // TODO: parse out anything malicious in message.text
+      var $messageTag = $('<div>').addClass('message-text').text(message.text);
+// //var $messageTag = $('<div>').addClass('message-text').text(document.createTextNode(message.text).html());
+// var msg = $('<div>').text(message.text).html();
+// var $messageTag = $('<div>').addClass('message-text').text(document.createTextNode(msg));
+      $messageContainer.append($usernameTag);
+      $messageContainer.append($messageTag);
+      // $messageContainer.attr('data-room', `${message.roomname}`)
 
-    // msgTagDiv.on('click', function() {
-    //   app.handleUsernameClick($(this));
-    // });
-    var $messageContainer = $('<div>').addClass('message');
-    var $usernameTag = $('<div>').addClass('username').text(message.username);
-    var $messageTag = $('<div>').addClass('message-text').text(message.text);
-    $messageContainer.append($usernameTag);
-    $messageContainer.append($messageTag);
-    // $messageContainer.attr('data-room', `${message.roomname}`)
+      $messageContainer.on('click', function() {
+        app.handleUsernameClick($(this));
+      });
 
-    $messageContainer.on('click', function() {
-      app.handleUsernameClick($(this));
-    });
-
-    return $messageContainer;
+      return $messageContainer;
+    }
   },
   renderMessage: function(messageDiv) {
     $('#chats').append(messageDiv);
@@ -123,6 +127,8 @@ var app = {
     this.friends[userName] = userName;
   },
   handleSubmit: function(inputMessage) {
+console.log('handle submit ....');
+    var currentRoom = inputMessage.roomname;
     // 0. toggle class="spinner" to 'on' - when page loads
     //    its toggled 'off'
     $('.spinner').toggle();
@@ -130,6 +136,7 @@ var app = {
     app.send(inputMessage);
     // 2. when response comes back as 'ok', add message text
     //    and author to div id="chats"
+    app.fetch(currentRoom);
     // 3. toggle spinner 'off'
     $('.spinner').toggle();  
   },
@@ -137,10 +144,13 @@ var app = {
     // populate Room selections
     $('#roomSelect').attr('data-currentRoom', roomName);
     for(var key in app.rooms) {
+      console.log(key);
       this.renderRoom(key);
     }
-    app.rooms[roomName].forEach(function(tag){
+console.log('roomName' + roomName);
+    app.rooms[roomName].forEach(function(tag) {
       app.renderMessage(tag);
-    })
+    });
+    $( '.spinner').toggle();
   }
 };
