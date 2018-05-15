@@ -1,6 +1,7 @@
 var app = {
   init: function() {
-    this.server = 'http://parse.sfm8.hackreactor.com';
+    // this.server = 'http://parse.sfm8.hackreactor.com';
+    this.server = 'http://127.0.0.1:3000';
     this.friends = {};
     this.rooms = { 'lobby':[] }; // { roomName1:[], roomName2: []} 
     $('#send .submit').on('click', function(event) {
@@ -22,20 +23,6 @@ var app = {
       var theRoom = $(event.target).val();
       $('#roomSelect').attr('data-currentroom', theRoom)
       app.fetch( theRoom );
-
-//     // $('#roomSelect').change(function() {
-//       // $(".spinner").toggle();
-//       app.clearMessages();
-// //console.log(document.getElementById('#roomSelect').value());
-// // console.log($('#roomSelect').attr('data-currentroom'));
-
-// // console.log('***********' + $( "#roomSelect option:selected" ).val());
-// // console.log('888888888' + JSON.stringify($(this).val()));
-// // console.log('888888888' + JSON.stringify($(event.target).val()));
-// // console.log('888888888' + JSON.stringify($(event.target))); // {"0":{},"context":{},"length":1}
-// // console.log('888888888' + $('#roomSelect').val()); // null
-// // console.log('888888888' + $('#roomSelect')); // Object
-// // console.log('888888888' + JSON.stringify($('#roomSelect')));
     });
 
     $(document).on('change', '#roomSelect', function() {
@@ -47,7 +34,7 @@ console.log('888888888' + $('#roomSelect').val());
   send: function(message) {
     $.ajax({
       // This is the url you should use to communicate with the parse API server.
-      url: this.server + '/chatterbox/classes/messages',
+      url: this.server + '/classes/messages',
       type: 'POST',
       data: JSON.stringify(message),
       // data: { posted_data: JSON.stringify(message) },
@@ -72,9 +59,9 @@ console.log('888888888' + $('#roomSelect').val());
     $.ajax({
       // http://parse.CAMPUS.hackreactor.com/chatterbox/classes/messages
       // sfm8
-      url: this.server + '/chatterbox/classes/messages',
+      url: this.server + '/classes/messages',
       type: 'GET',
-      data: {limit: 300, order: '-createdAt'},
+      // data: {limit: 300, order: '-createdAt'},
       contentType: 'application/json',
       success: function (data) {
         console.log('chatterbox: Message sent received from GET', data);
@@ -122,9 +109,6 @@ console.log('888888888' + $('#roomSelect').val());
       var $usernameTag = $('<a href="#">').addClass('username').text(message.username);
       // TODO: parse out anything malicious in message.text
       var $messageTag = $('<div>').addClass('message-text').text(message.text);
-// //var $messageTag = $('<div>').addClass('message-text').text(document.createTextNode(message.text).html());
-// var msg = $('<div>').text(message.text).html();
-// var $messageTag = $('<div>').addClass('message-text').text(document.createTextNode(msg));
       $messageContainer.append($usernameTag);
       $messageContainer.append($messageTag);
       // $messageContainer.attr('data-room', `${message.roomname}`)
