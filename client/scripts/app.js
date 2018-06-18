@@ -1,6 +1,8 @@
 var app = {
   init: function() {
-    this.server = 'http://parse.sfm8.hackreactor.com';
+    //this.server = 'http://parse.sfm8.hackreactor.com';
+    // listen on local chat server port
+    this.server = 'http://127.0.0.1' + ':' + 3000;
     this.friends = {};
     this.rooms = { 'lobby':[] }; // { roomName1:[], roomName2: []} 
     $('#send .submit').on('click', function(event) {
@@ -22,20 +24,6 @@ var app = {
       var theRoom = $(event.target).val();
       $('#roomSelect').attr('data-currentroom', theRoom)
       app.fetch( theRoom );
-
-//     // $('#roomSelect').change(function() {
-//       // $(".spinner").toggle();
-//       app.clearMessages();
-// //console.log(document.getElementById('#roomSelect').value());
-// // console.log($('#roomSelect').attr('data-currentroom'));
-
-// // console.log('***********' + $( "#roomSelect option:selected" ).val());
-// // console.log('888888888' + JSON.stringify($(this).val()));
-// // console.log('888888888' + JSON.stringify($(event.target).val()));
-// // console.log('888888888' + JSON.stringify($(event.target))); // {"0":{},"context":{},"length":1}
-// // console.log('888888888' + $('#roomSelect').val()); // null
-// // console.log('888888888' + $('#roomSelect')); // Object
-// // console.log('888888888' + JSON.stringify($('#roomSelect')));
     });
 
     $(document).on('change', '#roomSelect', function() {
@@ -44,10 +32,11 @@ console.log('888888888' + $('#roomSelect').val());
     // // need to toggle spinner 'off'
     this.fetch();
   },
+
   send: function(message) {
     $.ajax({
-      // This is the url you should use to communicate with the parse API server.
-      url: this.server + '/chatterbox/classes/messages',
+      // This is the url you should use to communicate with the parse API server.     
+      url: this.server,// + '/chatterbox/classes/messages',
       type: 'POST',
       data: JSON.stringify(message),
       // data: { posted_data: JSON.stringify(message) },
@@ -63,8 +52,9 @@ console.log('888888888' + $('#roomSelect').val());
       },
       error: function (message) {
         // See: https://developer.mozilla.org/en-US/docs/Web/API/console.error
-        console.error('chatterbox: Failed to send message', message);
-      }
+        console.log('this ', this);
+        console.error('chatterbox: Failed to send message ' + message + ' on url ' + this.server);
+      }.bind(this)
     });
   },
   // ??? needs to be called when the page loads & populates the 'rooms' pull down
@@ -72,7 +62,7 @@ console.log('888888888' + $('#roomSelect').val());
     $.ajax({
       // http://parse.CAMPUS.hackreactor.com/chatterbox/classes/messages
       // sfm8
-      url: this.server + '/chatterbox/classes/messages',
+      url: this.server,// + '/chatterbox/classes/messages',
       type: 'GET',
       data: {limit: 300, order: '-createdAt'},
       contentType: 'application/json',
@@ -85,11 +75,11 @@ console.log('888888888' + $('#roomSelect').val());
 
         return data.results;
       },
-      error: function () {
+      error: function (message) {
         // // See: https://developer.mozilla.org/en-US/docs/Web/API/console.error
-        console.error('chatterbox: Failed to send GET');
+        console.error('chatterbox: Failed to send message GET on url ' + this.server + ' message:' + JSON.stringify(message));
         return null;
-      }
+      }.bind(this)
     });
   },
   parseFetchedMessageArray: function(array) {
